@@ -1,5 +1,6 @@
 # Resilience
 cmd/resilience/resilience
+cmd/resilience/resilience.exe
 
 # Binaries for programs and plugins
 *.exe

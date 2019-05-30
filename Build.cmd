@@ -1,6 +1,5 @@
 @go get github.com/sqweek/dialog
 @go get github.com/getlantern/systray
-@SET FYNE_THEME=light
 @go build -ldflags="-s -w -H=windowsgui" -o cmd\resilience\resilience.exe^
     internal\app\resilience\main.go^
     internal\app\resilience\state.go^

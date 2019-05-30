@@ -1,6 +1,5 @@
 all:
 	@/bin/echo -n "[Resilience] Building Resilience... "
-	@export FYNE_THEME light
 	@go build -ldflags="-s -w" -o cmd/resilience/resilience internal/app/resilience/*.go
 	@/bin/echo "      OK"
 

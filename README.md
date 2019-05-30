@@ -7,11 +7,12 @@ Resilience Blocker.
 
 ## Goals
 ### Features List
-- [ ] Download blocked hosts list from secure server.
-- [ ] Block URIs on Windows, Linux and macOS.
+- [x] Download blocked hosts list from secure server.
+- [x] Block URIs on Windows, Linux and macOS.
+- [x] Launch at startup and show tray icon.
+- [x] Automatically update hosts list on startup and every 24 hours.
+- [x] Check for Resilience client updates automatically.
 - [ ] GUI for managing blocks, adding exceptions or custom blocks.
-- [ ] Launch at startup and show tray icon.
-- [ ] Automatically update hosts list on startup and every 24 hours.
 
 ### Assets Needed
 - [x] Logo

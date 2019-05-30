@@ -11,4 +11,4 @@
     internal\app\resilience\denier.go^
     internal\app\resilience\toggler.go^
     internal\app\resilience\icon.go
-@cmd\resilience\resilience.exe
+::@cmd\resilience\resilience.exe

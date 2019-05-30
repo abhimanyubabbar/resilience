@@ -9,7 +9,6 @@ dependencies:
 
 clean:
 	@/bin/echo -n "[Resilience] Cleaning up... "
-	@rm -f internal/app/resilience/parser.go
 	@rm -f cmd/resilience/resilience
 	@/bin/echo "            OK"
 

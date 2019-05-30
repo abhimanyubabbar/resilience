@@ -4,4 +4,5 @@
 
 package main
 
-var version = "1.0"
+var versionString = "1.0"
+var versionBuild = 1

@@ -5,13 +5,15 @@
 package main
 
 type state struct {
-	enabled bool
+	enabled   bool
+	hostsHash [32]byte
 }
 
-var stateState = state{}
-
-func stateInstatiate() {
-	stateState = state{
-		enabled: true,
+func stateInstatiate() state {
+	return state{
+		enabled:   true,
+		hostsHash: [32]byte{},
 	}
 }
+
+var stateState = stateInstatiate()

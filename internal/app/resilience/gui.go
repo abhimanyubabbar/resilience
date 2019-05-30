@@ -11,7 +11,9 @@ func guiOnReady() {
 	systray.SetIcon(iconData)
 	systray.SetTitle("Resilience")
 	systray.SetTooltip("Resilience Blocker")
-	mToggle := systray.AddMenuItem("Disable", "Resilience is Enabled.")
+	mStatus := systray.AddMenuItem("Resilience is Enabled", "")
+	mStatus.Disable()
+	mToggle := systray.AddMenuItem("Disable", "")
 	systray.AddSeparator()
 	mUpdate := systray.AddMenuItem("Update", "Check for Updates.")
 	systray.AddSeparator()
@@ -23,13 +25,18 @@ func guiOnReady() {
 			case <-mToggle.ClickedCh:
 				if stateState.enabled {
 					stateState.enabled = false
-					mToggle.SetTitle("Disabled")
+					mStatus.SetTitle("Resilience is Disabled")
+					mToggle.SetTitle("Enable")
 				} else {
 					stateState.enabled = true
-					mToggle.SetTitle("Enabled")
+					mStatus.SetTitle("Resilience is Enabled")
+					mToggle.SetTitle("Disable")
 				}
 			case <-mUpdate.ClickedCh:
-				systray.Quit()
+				go func() {
+					updateHosts(true)
+					updateClient(true)
+				}()
 			case <-mAbout.ClickedCh:
 				aboutDialog()
 			case <-mQuit.ClickedCh:

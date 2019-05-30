@@ -1,10 +1,13 @@
 all:
 	@/bin/echo -n "[Resilience] Building Resilience... "
+	@export FYNE_THEME light
 	@go build -ldflags="-s -w" -o cmd/resilience/resilience internal/app/resilience/*.go
 	@/bin/echo "      OK"
 
 dependencies:
 	@/bin/echo -n "[Resilience] Installing dependencies..."
+	@go get github.com/sqweek/dialog
+	@go get github.com/getlantern/systray
 	@/bin/echo " OK"
 
 clean:

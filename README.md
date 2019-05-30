@@ -1,6 +1,9 @@
 # [Resilience](https://resilienceblocker.info)
 Resilience Blocker.
 
+- No Acceptable Ads.
+- No compromises.
+
 ## Goals
 ### Features List
 - [ ] Download blocked hosts list from secure server.

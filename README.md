@@ -1,4 +1,5 @@
 # [Resilience](https://resilienceblocker.info)
+<img src="https://raw.githubusercontent.com/kaepora/resilience/master/assets/logo.svg" height="96" />
 Resilience Blocker.
 
 - No Acceptable Ads.
@@ -13,7 +14,7 @@ Resilience Blocker.
 - [ ] Automatically update hosts list on startup and every 24 hours.
 
 ### Assets Needed
-- [ ] Logo
+- [x] Logo
 - [ ] Website
 
 ## Build

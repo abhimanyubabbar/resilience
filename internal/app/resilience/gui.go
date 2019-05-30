@@ -24,13 +24,18 @@ func guiOnReady() {
 			select {
 			case <-mToggle.ClickedCh:
 				if stateState.enabled {
-					stateState.enabled = false
-					mStatus.SetTitle("Resilience is Disabled")
-					mToggle.SetTitle("Enable")
+					err := togglerDisable()
+					if err == nil {
+						mStatus.SetTitle("Resilience is Disabled")
+						mToggle.SetTitle("Enable")
+					}
+
 				} else {
-					stateState.enabled = true
-					mStatus.SetTitle("Resilience is Enabled")
-					mToggle.SetTitle("Disable")
+					err := togglerEnable()
+					if err == nil {
+						mStatus.SetTitle("Resilience is Enabled")
+						mToggle.SetTitle("Disable")
+					}
 				}
 			case <-mUpdate.ClickedCh:
 				go func() {

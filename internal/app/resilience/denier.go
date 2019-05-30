@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"io/ioutil"
 	"os"
 	"path"
@@ -11,7 +12,7 @@ import (
 	"github.com/sqweek/dialog"
 )
 
-func denierUpdate(hosts []byte) {
+func denierUpdate(hosts []byte) error {
 	var hostsPath string
 	if runtime.GOOS == "windows" {
 		hostsPath = path.Join(
@@ -28,10 +29,10 @@ func denierUpdate(hosts []byte) {
 	} else if runtime.GOOS == "darwin" {
 		hostsPath = path.Join("/etc", "hosts")
 	}
-	denierUpdateWrite(hosts, hostsPath)
+	return denierUpdateWrite(hosts, hostsPath)
 }
 
-func denierUpdateWrite(hosts []byte, hostsPath string) {
+func denierUpdateWrite(hosts []byte, hostsPath string) error {
 	resBegin := "# BEGIN RESILIENCE BLOCK LIST"
 	resEnd := "# END RESILIENCE BLOCK LIST"
 	resMatch := regexp.MustCompile(
@@ -42,7 +43,7 @@ func denierUpdateWrite(hosts []byte, hostsPath string) {
 	var hostsUpdated string
 	if err != nil {
 		denierUpdateError()
-		return
+		return errors.New("denierUpdateWrite error")
 	}
 	isResMatch := resMatch.MatchString(stringHostsFile)
 	if isResMatch {
@@ -62,8 +63,9 @@ func denierUpdateWrite(hosts []byte, hostsPath string) {
 	err = ioutil.WriteFile(hostsPath, []byte(hostsUpdated), 755)
 	if err != nil {
 		denierUpdateError()
-		return
+		return errors.New("denierUpdateWrite error")
 	}
+	return nil
 }
 
 func denierUpdateError() {

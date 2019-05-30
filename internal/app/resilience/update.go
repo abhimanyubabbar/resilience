@@ -20,18 +20,18 @@ type updateData struct {
 	Latest int
 }
 
-func updateHosts(explicit bool) {
+func updateHosts(explicit bool) error {
 	var httpClient = &http.Client{Timeout: 60 * time.Second}
 	r, err := httpClient.Get("https://resilienceblocker.info/data/hosts")
 	if err != nil {
 		updateHostsError()
-		return
+		return err
 	}
 	defer r.Body.Close()
 	hosts, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		updateHostsError()
-		return
+		return err
 	}
 	hostsHash := blake2b.Sum256(hosts)
 	if bytes.Compare(stateState.hostsHash[:], hostsHash[:]) == 0 {
@@ -42,28 +42,29 @@ func updateHosts(explicit bool) {
 		}
 	} else {
 		stateState.hostsHash = hostsHash
-		denierUpdate(hosts)
+		return denierUpdate(hosts)
 	}
+	return nil
 }
 
-func updateClient(explicit bool) {
+func updateClient(explicit bool) error {
 	var updateResult updateData
 	var httpClient = &http.Client{Timeout: 20 * time.Second}
 	r, err := httpClient.Get("https://resilienceblocker.info/data/updateClient.json")
 	if err != nil {
 		updateClientError()
-		return
+		return err
 	}
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		updateClientError()
-		return
+		return err
 	}
 	err = json.Unmarshal(body, &updateResult)
 	if err != nil {
 		updateClientError()
-		return
+		return err
 	}
 	if updateResult.Latest > versionBuild {
 		dialog.Message(strings.Join([]string{
@@ -78,6 +79,7 @@ func updateClient(explicit bool) {
 			).Title("Resilience Update").Info()
 		}
 	}
+	return nil
 }
 
 func updateHostsError() {

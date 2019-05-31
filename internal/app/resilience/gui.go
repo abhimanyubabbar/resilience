@@ -21,7 +21,9 @@ func guiOnReady() {
 	systray.AddSeparator()
 	mUpdate := systray.AddMenuItem("Update", "Check for Updates.")
 	systray.AddSeparator()
+	mHelp := systray.AddMenuItem("Getting Started", "Help with Resilience.")
 	mAbout := systray.AddMenuItem("About", "About Resilience.")
+	systray.AddSeparator()
 	mQuit := systray.AddMenuItem("Quit", "Quit Resilience.")
 	go func() {
 		for {
@@ -45,6 +47,8 @@ func guiOnReady() {
 					updateHosts(false)
 					updateClient(true)
 				}()
+			case <-mHelp.ClickedCh:
+				aboutHelpPage()
 			case <-mAbout.ClickedCh:
 				aboutDialog()
 			case <-mQuit.ClickedCh:

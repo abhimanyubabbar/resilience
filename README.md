@@ -39,4 +39,4 @@ make all
 Resilience will be located at `cmd/resilience/resilience`.
 
 ## License
-Authored by [Nadim Kobeissi](https://nadim.computer) and released under the GNU General Public License, version 3.
+Authored by [Nadim Kobeissi](https://nadim.computer) and released under the MIT license.

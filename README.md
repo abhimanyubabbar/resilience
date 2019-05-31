@@ -8,19 +8,29 @@ Resilience Blocker.
 ## Goals
 ### Features List
 - [x] Download blocked hosts list from secure server.
-- [x] Block URIs on Windows, Linux and macOS.
+- [X] Parse [EasyList format](https://adblockplus.org/filter-cheatsheet) into HTTP proxy rules.
+- [X] HTTP proxy for Windows, Linux and macOS.
 - [x] Launch at startup and show tray icon.
 - [x] Automatically update hosts list on startup and every 24 hours.
 - [x] Check for Resilience client updates automatically.
-- [ ] GUI for managing blocks, adding exceptions or custom blocks.
+- [x] Store block list and load locally on startup -- check remote hash for updates
+- [ ] Interface for managing blocks, adding exceptions or custom blocks.
 
 ### Assets Needed
 - [x] Logo
 - [ ] Website
+- [ ] Website: Manifesto
+- [ ] Website: Help and Docs
 
 ## Build
 You must have [Go](https://golang.org) installed in order to build Resilience.
 
+### Windows
+```
+Build.cmd
+```
+
+### Linux and macOS
 ```
 make dependencies
 make all

@@ -4,13 +4,17 @@
 package main
 
 import (
+	"runtime"
+
 	"github.com/getlantern/systray"
 )
 
 func guiOnReady() {
 	systray.SetIcon(iconData)
-	systray.SetTitle("Resilience")
-	systray.SetTooltip("Resilience Blocker")
+	if runtime.GOOS != "darwin" {
+		systray.SetTitle("Resilience")
+	}
+	systray.SetTooltip("Resilience")
 	mStatus := systray.AddMenuItem("Resilience is Enabled", "")
 	mStatus.Disable()
 	mToggle := systray.AddMenuItem("Disable", "")
@@ -29,7 +33,6 @@ func guiOnReady() {
 						mStatus.SetTitle("Resilience is Disabled")
 						mToggle.SetTitle("Enable")
 					}
-
 				} else {
 					err := togglerEnable()
 					if err == nil {
@@ -39,7 +42,7 @@ func guiOnReady() {
 				}
 			case <-mUpdate.ClickedCh:
 				go func() {
-					updateHosts(true)
+					updateHosts(false)
 					updateClient(true)
 				}()
 			case <-mAbout.ClickedCh:

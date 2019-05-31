@@ -4,15 +4,23 @@
 
 package main
 
+import (
+	"github.com/elazarl/goproxy"
+)
+
 type state struct {
 	enabled   bool
-	hostsHash [32]byte
+	hostsHash string
+	proxy     *goproxy.ProxyHttpServer
+	rules     *adblockRules
 }
 
 func stateInstatiate() state {
 	return state{
 		enabled:   true,
-		hostsHash: [32]byte{},
+		hostsHash: "",
+		proxy:     nil,
+		rules:     nil,
 	}
 }
 

@@ -2,6 +2,9 @@
 cmd/resilience/resilience
 cmd/resilience/resilience.exe
 
+# macOS
+.DS_Store
+
 # Binaries for programs and plugins
 *.exe
 *.exe~

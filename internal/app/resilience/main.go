@@ -3,12 +3,23 @@
  * All Rights Reserved. */
 package main
 
-import "github.com/getlantern/systray"
+import (
+	"time"
+
+	"github.com/getlantern/systray"
+)
 
 func main() {
 	go func() {
+		for range time.NewTicker(24 * time.Hour).C {
+			updateClient(false)
+			updateHosts(false)
+		}
+	}()
+	go func() {
+		denierHostsInit()
 		updateHosts(false)
-		updateClient(false)
+		denierProxyInit()
 	}()
 	systray.Run(guiOnReady, guiOnExit)
 }

@@ -5,9 +5,10 @@ all:
 
 dependencies:
 	@/bin/echo -n "[Resilience] Installing dependencies..."
-	@go get github.com/sqweek/dialog
-	@go get github.com/getlantern/systray
-	@go get golang.org/x/crypto/blake2b
+	@go get -u github.com/sqweek/dialog
+	@go get -u github.com/getlantern/systray
+	@go get -u golang.org/x/crypto/blake2b
+	@go get -u github.com/elazarl/goproxy
 	@/bin/echo " OK"
 
 clean:

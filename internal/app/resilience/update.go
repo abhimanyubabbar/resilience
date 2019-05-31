@@ -5,7 +5,6 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -13,7 +12,6 @@ import (
 	"time"
 
 	"github.com/sqweek/dialog"
-	"golang.org/x/crypto/blake2b"
 )
 
 type updateData struct {
@@ -22,29 +20,33 @@ type updateData struct {
 
 func updateHosts(explicit bool) error {
 	var httpClient = &http.Client{Timeout: 60 * time.Second}
-	r, err := httpClient.Get("https://resilienceblocker.info/data/hosts")
+	r, err := httpClient.Get("https://resilienceblocker.info/data/blockList.b2sum")
+	if err != nil {
+		updateHostsError()
+		return err
+	}
+	defer r.Body.Close()
+	b2sum, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		updateHostsError()
+		return err
+	}
+	if stateState.hostsHash == strings.Trim(string(b2sum), "\r\n ") {
+		if explicit {
+			dialog.Message(
+				"No updates are available for your Resilience block list.",
+			).Title("Resilience Update").Info()
+		}
+		return nil
+	}
+	r, err = httpClient.Get("https://resilienceblocker.info/data/blockList")
 	if err != nil {
 		updateHostsError()
 		return err
 	}
 	defer r.Body.Close()
 	hosts, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		updateHostsError()
-		return err
-	}
-	hostsHash := blake2b.Sum256(hosts)
-	if bytes.Compare(stateState.hostsHash[:], hostsHash[:]) == 0 {
-		if explicit {
-			dialog.Message(
-				"No updates are available for your Resilience block list.",
-			).Title("Resilience Update").Info()
-		}
-	} else {
-		stateState.hostsHash = hostsHash
-		return denierUpdate(hosts)
-	}
-	return nil
+	return denierUpdate(hosts, true)
 }
 
 func updateClient(explicit bool) error {

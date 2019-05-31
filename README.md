@@ -1,5 +1,5 @@
 # [Resilience](https://resilienceblocker.info)
-<img src="https://raw.githubusercontent.com/kaepora/resilience/master/assets/logo.svg" height="96" />
+<img src="https://raw.githubusercontent.com/kaepora/resilience/master/assets/icon/icon.png" height="96" />
 Resilience Blocker.
 
 - No Acceptable Ads.

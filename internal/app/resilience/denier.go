@@ -38,7 +38,7 @@ func denierProxyInit() {
 	stateState.proxy = goproxy.NewProxyHttpServer()
 	stateState.proxy.Verbose = false
 	stateState.proxy.OnRequest().HandleConnectFunc(
-		func(host string, ctx *goproxy.ProxyCtx) (*goproxy.ConnectAction, string) {\
+		func(host string, ctx *goproxy.ProxyCtx) (*goproxy.ConnectAction, string) {
 			if rand.Intn(25) == 1 {
 				go func() {
 					runtime.GC()

@@ -39,7 +39,7 @@ func denierProxyInit() {
 			if !stateState.enabled {
 				return goproxy.OkConnect, host
 			}
-			if stateState.rules.ShouldBlock(ctx.Req.URL.String(), map[string]interface{}{
+			if adblockShouldBlock(stateState.rules, ctx.Req.URL.String(), map[string]interface{}{
 				"domain": host,
 			}) {
 				return goproxy.RejectConnect, host
@@ -59,7 +59,7 @@ func denierUpdate(hosts []byte, write bool) error {
 			newRules = append(newRules, rule)
 		}
 	}
-	tempRules, err := adblockNewRules(newRules, nil)
+	tempRules, err := adblockNewRules(newRules)
 	if err != nil {
 		denierUpdateError()
 		return err
@@ -70,6 +70,7 @@ func denierUpdate(hosts []byte, write bool) error {
 		hex.EncodeToString(newHash[:]),
 		"blockList",
 	}, "  ")
+	tempRules = nil
 	if write {
 		err = denierVerifyConfig()
 		if err != nil {

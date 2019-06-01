@@ -40,8 +40,6 @@ var (
 )
 
 type adblockRule struct {
-	raw           string
-	text          string
 	regexString   string
 	regex         *regexp.Regexp
 	isComment     bool
@@ -49,26 +47,6 @@ type adblockRule struct {
 	isException   bool
 	options       map[string]bool
 	domainOptions map[string]bool
-	rawOptions    []string
-	optionsKeys   []string
-}
-
-type adblockRules struct {
-	rules                  []*adblockRule
-	opt                    *adblockRulesOption
-	blacklist              []*adblockRule
-	whitelist              []*adblockRule
-	blacklistRe            *regexp.Regexp
-	whitelistRe            *regexp.Regexp
-	blacklistWithOptions   []*adblockRule
-	whitelistWithOptions   []*adblockRule
-	blacklistRequireDomain map[string][]*adblockRule
-	whitelistRequireDomain map[string][]*adblockRule
-}
-
-type adblockRulesOption struct {
-	Supports              []string
-	CheckUnsupportedRules bool
 }
 
 func (rule *adblockRule) OptionsKeys() []string {
@@ -82,14 +60,6 @@ func (rule *adblockRule) OptionsKeys() []string {
 		opts = append(opts, "domain")
 	}
 	return opts
-}
-
-func (rule *adblockRule) HasOption(key string) bool {
-	if key == "domain" {
-		return rule.domainOptions != nil && len(rule.domainOptions) >= 0
-	}
-	_, ok := rule.options[key]
-	return ok
 }
 
 func (rule *adblockRule) DomainOptions() map[string]bool {
@@ -113,119 +83,19 @@ func (rule *adblockRule) MatchingSupported(options map[string]interface{}, rever
 	return true
 }
 
-func (rule *adblockRule) MatchURL(u string, options map[string]interface{}) bool {
-	for opt := range rule.options {
-		if opt == "match-case" {
-			continue
-		}
-		if _, ok := options[opt]; !ok {
-			return false
-		}
-		v, ok := options[opt]
-		if ok {
-			bl, ok := v.(bool)
-			if ok {
-				rv, ok := rule.options[opt]
-				if ok {
-					if bl != rv {
-						return false
-					}
-				}
-			}
-		}
-	}
-	if len(rule.DomainOptions()) > 0 {
-		if _, ok := options["domain"]; !ok {
-			panic("Rule requires option domain")
-		}
-	}
-	v, ok := options["domain"]
-	if ok {
-		sv := v.(string)
-		if !rule.DomainMatches(sv) {
-			return false
-		}
-	}
-	return rule.URLMatches(u)
+func adblockShouldBlock(blacklistRe *regexp.Regexp, u string, options map[string]interface{}) bool {
+	return adblockMatches(u, options, blacklistRe)
 }
 
-func (rule *adblockRule) URLMatches(u string) bool {
-	if rule.regex == nil {
-		rule.regex = regexp.MustCompile(rule.regexString)
-	}
-	return rule.regex.MatchString(u)
-}
-
-func (rule *adblockRule) DomainMatches(domain string) bool {
-	for _, dm := range adblockDomainVariants(domain) {
-		if bl, ok := rule.domainOptions[dm]; ok {
-			return bl
-		}
-	}
-	for _, bl := range rule.domainOptions {
-		if bl {
-			return false
-		}
-	}
-	return true
-}
-
-func (rules *adblockRules) ShouldBlock(u string, options map[string]interface{}) bool {
-	if rules.IsWhiteListed(u, options) {
-		return false
-	}
-	if rules.IsBlackListed(u, options) {
-		return true
-	}
-	return false
-}
-
-func (rules *adblockRules) IsWhiteListed(u string, options map[string]interface{}) bool {
-	return rules.matches(u, options, rules.whitelistRe, rules.whitelistRequireDomain, rules.whitelistWithOptions)
-}
-
-func (rules *adblockRules) IsBlackListed(u string, options map[string]interface{}) bool {
-	return rules.matches(u, options, rules.blacklistRe, rules.blacklistRequireDomain, rules.blacklistWithOptions)
-}
-
-func (rules *adblockRules) matches(u string, options map[string]interface{}, generalRe *regexp.Regexp, domainRequiredRules map[string][]*adblockRule, rulesWithOptions []*adblockRule) bool {
+func adblockMatches(u string, options map[string]interface{}, generalRe *regexp.Regexp) bool {
 	if generalRe != nil && generalRe.MatchString(u) {
 		return true
 	}
-	rls := []*adblockRule{}
-	isrcDomain, ok := options["domain"]
-	srcDomain, ok2 := isrcDomain.(string)
-	if ok && ok2 && len(domainRequiredRules) > 0 {
-		for _, domain := range adblockDomainVariants(srcDomain) {
-			if vs, ok := domainRequiredRules[domain]; ok {
-				rls = append(rls, vs...)
-			}
-		}
-	}
-	rls = append(rls, rulesWithOptions...)
-	if !rules.opt.CheckUnsupportedRules {
-		for _, rule := range rls {
-			if rule.MatchingSupported(options, true) {
-				if rule.MatchURL(u, options) {
-					return true
-				}
-			}
-		}
-	}
 	return false
-}
-
-func (rules *adblockRules) BlackList() []*adblockRule {
-	return rules.blacklist
-}
-
-func (rules *adblockRules) WhiteList() []*adblockRule {
-	return rules.whitelist
 }
 
 func adblockNewRule(text string) (*adblockRule, error) {
 	rule := &adblockRule{}
-	rule.raw = text
 	text = strings.TrimSpace(text)
 	rule.isComment = adblockHasAnyPrefix(text, "!", "[Adblock")
 	if rule.isComment {
@@ -249,8 +119,8 @@ func adblockNewRule(text string) (*adblockRule, error) {
 		if length > 1 {
 			option = parts[1]
 		}
-		rule.rawOptions = strings.Split(option, ",")
-		for _, opt := range rule.rawOptions {
+		rawOptions := strings.Split(option, ",")
+		for _, opt := range rawOptions {
 			if strings.HasPrefix(opt, "domain=") {
 				rule.domainOptions = adblockParseDomainOption(opt)
 			} else {
@@ -258,11 +128,8 @@ func adblockNewRule(text string) (*adblockRule, error) {
 			}
 		}
 	} else {
-		rule.rawOptions = []string{}
 		rule.domainOptions = make(map[string]bool)
 	}
-	rule.optionsKeys = rule.OptionsKeys()
-	rule.text = text
 	if rule.isComment || rule.isHTMLRule {
 		rule.regexString = ""
 	} else {
@@ -275,41 +142,31 @@ func adblockNewRule(text string) (*adblockRule, error) {
 	return rule, nil
 }
 
-func adblockNewRules(ruleStrs []string, opt *adblockRulesOption) (*adblockRules, error) {
-	rls := &adblockRules{}
-	if opt == nil {
-		rls.opt = &adblockRulesOption{}
-	} else {
-		rls.opt = opt
-	}
-	if rls.opt.Supports == nil {
-		rls.opt.Supports = append(adblockBinaryOptions, "domain")
-	}
-	params := adblockSliceToMap(rls.opt.Supports)
+func adblockNewRules(ruleStrs []string) (*regexp.Regexp, error) {
+	var supports []string
+	var rules []*adblockRule
+	supports = append(adblockBinaryOptions, "domain")
+	params := adblockSliceToMap(supports)
 	for _, ruleStr := range ruleStrs {
 		rule, err := adblockNewRule(ruleStr)
 		if err != nil {
 			return nil, err
 		}
 		if rule.regexString != "" && rule.MatchingSupported(params, false) {
-			rls.rules = append(rls.rules, rule)
+			rules = append(rules, rule)
 		}
 	}
-	advancedRules, basicRules := adblockSplitRuleData(rls.rules, func(rule *adblockRule) bool {
+	_, basicRules := adblockSplitRuleData(rules, func(rule *adblockRule) bool {
 		if (rule.options != nil && len(rule.options) > 0) || (rule.domainOptions != nil && len(rule.domainOptions) > 0) {
 			return true
 		}
 		return false
 	})
-	domainRequiredRules, NonDomainRules := adblockSplitRuleData(advancedRules, func(rule *adblockRule) bool {
-		return rule.HasOption("domain") && adblockAnyTrueValue(rule.domainOptions)
-	})
-	rls.blacklist, rls.whitelist = adblockSplitBlackWhite(basicRules)
-	rls.blacklistRe = adblockCombinedRegex(rls.blacklist)
-	rls.whitelistRe = adblockCombinedRegex(rls.whitelist)
-	rls.blacklistWithOptions, rls.whitelistWithOptions = adblockSplitBlackWhite(NonDomainRules)
-	rls.blacklistRequireDomain, rls.whitelistRequireDomain = adblockSplitBlackWhiteDomain(domainRequiredRules)
-	return rls, nil
+	blacklist, _ := adblockSplitBlackWhite(basicRules)
+	blacklistRe := adblockCombinedRegex(blacklist)
+	rules = nil
+	supports = nil
+	return blacklistRe, nil
 }
 
 func adblockCreateCheckStringSetFunc(checkFunc func(string, string) bool) func(string, ...string) bool {
@@ -359,16 +216,6 @@ func adblockRuleToRegexp(text string) (string, error) {
 	}
 	rule = regexp.MustCompile(`(\|)[^$]`).ReplaceAllString(rule, `\|`)
 	return rule, nil
-}
-
-func adblockDomainVariants(domain string) []string {
-	variants := []string{}
-	parts := strings.Split(domain, ".")
-	for i := len(parts); i > 1; i-- {
-		p := parts[len(parts)-i:]
-		variants = append(variants, strings.Join(p, "."))
-	}
-	return variants
 }
 
 func adblockSliceToMap(sl []string) map[string]interface{} {

@@ -5,6 +5,8 @@
 package main
 
 import (
+	"regexp"
+
 	"github.com/elazarl/goproxy"
 )
 
@@ -12,7 +14,7 @@ type state struct {
 	enabled   bool
 	hostsHash string
 	proxy     *goproxy.ProxyHttpServer
-	rules     *adblockRules
+	rules     *regexp.Regexp
 }
 
 func stateInstatiate() state {

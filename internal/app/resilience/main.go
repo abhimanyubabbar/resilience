@@ -18,8 +18,8 @@ func main() {
 	}()
 	go func() {
 		denierHostsInit()
-		updateHosts(false)
 		denierProxyInit()
+		updateHosts(false)
 	}()
 	systray.Run(guiOnReady, guiOnExit)
 }

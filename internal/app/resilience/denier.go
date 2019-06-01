@@ -10,6 +10,9 @@ import (
 	"os"
 	"os/user"
 	"path"
+	"rand"
+	"runtime"
+	"runtime/debug"
 	"strings"
 
 	"github.com/elazarl/goproxy"
@@ -35,7 +38,13 @@ func denierProxyInit() {
 	stateState.proxy = goproxy.NewProxyHttpServer()
 	stateState.proxy.Verbose = false
 	stateState.proxy.OnRequest().HandleConnectFunc(
-		func(host string, ctx *goproxy.ProxyCtx) (*goproxy.ConnectAction, string) {
+		func(host string, ctx *goproxy.ProxyCtx) (*goproxy.ConnectAction, string) {\
+			if rand.Intn(25) == 1 {
+				go func() {
+					runtime.GC()
+					debug.FreeOSMemory()
+				}()
+			}
 			if !stateState.enabled {
 				return goproxy.OkConnect, host
 			}

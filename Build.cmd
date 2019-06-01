@@ -11,7 +11,6 @@
 	internal\app\resilience\version.go^
 	internal\app\resilience\denier.go^
 	internal\app\resilience\toggler.go^
-	internal\app\resilience\filter.go^
 	internal\app\resilience\adblock.go^
 	internal\app\resilience\icon.go
 ::@cmd\resilience\resilience.exe
